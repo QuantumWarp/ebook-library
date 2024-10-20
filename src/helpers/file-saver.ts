@@ -1,30 +1,30 @@
 import JSZip from "jszip";
+import { Ebook } from "./ebook";
 
 // See https://www.w3.org/TR/epub-33/ for more information
-export const exportEpub = () => {
-  // Initialize JSZip instance
+export const exportEpub = (ebook: Ebook) => {
   const zip = new JSZip();
 
   zip.file("mimetype", "application/epub+zip");
 
-  // Add META-INF/container.xml file
-  zip.file("META-INF/container.xml", `
-<?xml version="1.0"?>
+  zip.file("META-INF/container.xml", 
+`<?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>
-  `);
+</container>`
+);
 
   // Add OEBPS/content.opf (metadata for the EPUB)
-  zip.file("OEBPS/content.opf", `<?xml version="1.0" encoding="UTF-8"?>
+  zip.file("OEBPS/content.opf",
+`<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    <dc:title>Sample Book</dc:title>
-    <dc:creator>Author Name</dc:creator>
+    <dc:title>${ebook.title}</dc:title>
+    <dc:creator>${ebook.author}</dc:creator>
     <dc:language>en</dc:language>
-    <dc:identifier>Test</dc:identifier>
+    <dc:identifier>${ebook.title.toLowerCase().replace(/\s/g, "_")}</dc:identifier>
   </metadata>
   <manifest>
     <item id="nav" href="nav.html" media-type="application/xhtml+xml" properties="nav"/>
