@@ -1,107 +1,95 @@
-import { Jimp } from 'jimp';
-import { useEffect, useState } from 'react';
-import { Rotations, Side } from '../helpers/enums';
+import { useRef, useState, useEffect } from "react";
 
-const cropAmount = 100;
-const rotateAmount = 90;
+const cropInc = 20;
+const rotInc = 1;
 
 type PictureAdjusterProps = {
-  initialBlob: string;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
 }
 
-export function PictureAdjuster({ initialBlob }: PictureAdjusterProps) {
-  const [imageBlob, setImageBlob] = useState<string>(initialBlob);
+export const PictureAdjuster = ({ canvasRef }: PictureAdjusterProps) => {
+  const imageRef = useRef<HTMLImageElement>(null);
 
-  const reset = async () => {
-    setImageBlob(initialBlob);
-  };
+  const [rotation, setRotation] = useState(0);
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   useEffect(() => {
-    setImageBlob(initialBlob);
-  }, [initialBlob])
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d")!;
+    const image = imageRef.current!;
 
-  const crop = async (side: Side) => {
-    const image = await Jimp.read(imageBlob!);
-    const { width, height } = image;
+    ctx.clearRect(0, 0, image.naturalWidth, image.naturalHeight);
+    ctx.save();
 
-    switch (side) {
-      case Side.Left:
-        image.crop({ x: cropAmount, y: 0, w: width - cropAmount, h: height });
-        break;
-      case Side.Right:
-        image.crop({ x: 0, y: 0, w: width - cropAmount, h: height });
-        break;
-      case Side.Top:
-        image.crop({ x: 0, y: cropAmount, w: width, h: height- cropAmount   });
-        break;
-      case Side.Bottom:
-        image.crop({ x: 0, y: 0, w: width, h: height - cropAmount });
-        break;
-    }
-    
-    const base64 = await image.getBase64("image/png");
-    setImageBlob(base64);
-  };
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.filter = "grayscale(100%)";
 
-  const rotate = async (direction: Rotations) => {
-    const image = await Jimp.read(imageBlob!);
-  
-    switch (direction) {
-      case Rotations.Clockwise:
-        image.rotate(-rotateAmount);
-        break;
-      case Rotations.Counterclockwise:
-        image.rotate(rotateAmount);
-        break;
-    }
-    
-    const base64 = await image.getBase64("image/png");
-    setImageBlob(base64);
-  }
+    ctx.drawImage(
+      image,
+      crop.x,
+      crop.y,
+      crop.width,
+      crop.height,
+      -crop.width / 2,
+      -crop.height / 2,
+      crop.width,
+      crop.height
+    );
 
-  const sanitize = async () => {
-    const image = await Jimp.read(imageBlob!);
-    image.greyscale();
-    const base64 = await image.getBase64("image/png");
-    setImageBlob(base64);
-  }
+    ctx.restore();
+  }, [rotation, crop, canvasRef]);
 
   return (
     <div>
-      Adjust
-      <img src={imageBlob} height={500} />
+      <h3>Image Editor</h3>
+      <canvas ref={canvasRef} style={{ width: "500px" }}></canvas>
 
-      <button onClick={() => reset()}>
-        Reset
-      </button>
-      
-      <button onClick={() => crop(Side.Left)}>
-        Crop Left
-      </button>
-      
-      <button onClick={() => crop(Side.Right)}>
-        Crop Right
-      </button>
-      
-      <button onClick={() => crop(Side.Top)}>
-        Crop Top
-      </button>
-      
-      <button onClick={() => crop(Side.Bottom)}>
-        Crop Bottom
-      </button>
+      <div>
+        <button onClick={() => setCrop({ ...crop, x: crop.x + cropInc, width: crop.width - cropInc })}>
+          Crop Left
+        </button>
+        
+        <button onClick={() => setCrop({ ...crop, width: crop.width - cropInc })}>
+          Crop Right
+        </button>
+        
+        <button onClick={() => setCrop({ ...crop, y: crop.y + cropInc, height: crop.height - cropInc })}>
+          Crop Top
+        </button>
+        
+        <button onClick={() => setCrop({ ...crop, height: crop.height - cropInc })}>
+          Crop Bottom
+        </button>
+      </div>
 
-      <button onClick={() => rotate(Rotations.Counterclockwise)}>
-        Rotate Left
-      </button>
+      <div>
+        <button onClick={() => setRotation(rotation - rotInc)}>
+          Rotate Left
+        </button>
 
-      <button onClick={() => rotate(Rotations.Clockwise)}>
-        Rotate Right
-      </button>
+        <button onClick={() => setRotation(rotation + rotInc)}>
+          Rotate Right
+        </button>
+      </div>
 
-      <button onClick={() => sanitize()}>
-        Sanitize
-      </button>
+      <img
+        ref={imageRef}
+        src="http://localhost:5173/test1.jpg"
+        alt="Editable"
+        style={{ display: "none" }} // Hide the image element
+        onLoad={() => {
+          const canvas = canvasRef.current!;
+          const image = imageRef.current!;
+
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+
+          const ctx = canvas.getContext("2d")!;
+          setCrop({ x: 0, y: 0, width: image.naturalWidth, height: image.naturalHeight });
+          ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
+        }}
+      />
     </div>
-  )
-}
+  );
+};
