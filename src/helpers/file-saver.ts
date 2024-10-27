@@ -1,8 +1,8 @@
 import JSZip from "jszip";
-import { Ebook } from "./ebook";
+import { Book } from "../models/book";
 
 // See https://www.w3.org/TR/epub-33/ for more information
-export const exportEpub = (ebook: Ebook) => {
+export const exportEpub = (ebook: Book) => {
   const zip = new JSZip();
 
   zip.file("mimetype", "application/epub+zip");

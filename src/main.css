@@ -17,14 +17,6 @@ body {
   min-height: 100vh;
 }
 
-button {
-  all: unset;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-button:hover {
-  background-color: #cdcdcd;
-  transition: background-color 0.2s ease;
+.ProseMirror:focus {
+  outline: none;
 }

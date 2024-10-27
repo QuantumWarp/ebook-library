@@ -1,15 +1,18 @@
-import { useRef } from "react";
-import { PictureAdjuster } from "./components/PictureAdjuster";
-import { Scanner } from "./components/Scanner";
+import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
+import { MainPage } from "./MainPage";
 
 export function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = createTheme({
+    colorSchemes: {
+      dark: prefersDarkMode
+    },
+  });
 
   return (
-    <div>
-      Test
-      <PictureAdjuster canvasRef={canvasRef} />
-      <Scanner canvasRef={canvasRef} />
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <MainPage />
+    </ThemeProvider>
   );
 }
