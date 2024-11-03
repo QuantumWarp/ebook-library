@@ -1,30 +1,30 @@
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
-import { Summary } from "../models/summary";
+import { Book } from "../helpers/book";
 
 type BookTileProps = {
-  summary: Summary;
+  book: Book;
   onSelect: () => void;
 };
 
-export function BookTile({ summary, onSelect }: BookTileProps) {
+export function BookTile({ book, onSelect }: BookTileProps) {
   return (
-    <Card sx={{ display: "flex", height: 200, width: 700 }} onClick={onSelect}>
+    <Card sx={{ display: "flex", height: 200, maxWidth: 700 }} onClick={onSelect}>
       <CardActionArea sx={{ display: "flex" }}>
         <CardMedia
           component="img"
           width="300px"
           sx={{ maxWidth: 150 }}
-          image={summary.image}
+          image={book.image}
         />
         <CardContent sx={{ flex: "1", height: "100%", display: "flex", flexDirection: "column" }}>
           <Typography variant="h5">
-            {summary.title}
+            {book.title}
           </Typography>
           <Typography gutterBottom variant="h6">
-            {summary.author}
+            {book.author}
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary", overflow: "hidden" }}>
-            {summary.description}
+            {book.description}
           </Typography>
         </CardContent>
       </CardActionArea>

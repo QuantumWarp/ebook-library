@@ -1,71 +1,115 @@
-import { Box, Card, Grid2, IconButton, TextField, Typography } from "@mui/material";
-import { Chapter } from "../models/chapter";
-import { ChapterEditor } from "./ChapterEditor";
+import { Box, Button, Card, Grid2, IconButton, TextField } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon,
-  Save as SaveIcon,
 } from "@mui/icons-material";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Editor } from "@tiptap/react";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { Book } from "../helpers/book";
+import { saveBook } from "../storage/book.storage";
+import { deleteChapterContent, getChapterContent, saveChapterContent } from "../storage/chapter.storage";
+import { defaultSaveDebounce } from "../helpers/constants";
+import { PageContainer } from "../common/PageContainer";
+import { ContentEditor } from "../common/ContentEditor";
+import { getLastScan } from "../storage/scan.storage";
 
-type ChapterPageProps = {
-  chapter: Chapter;
-  updateChapter: (chapter: Chapter) => void;
-  onScan: () => void;
-  onDelete: () => void;
-  onBack: () => void;
-}
-
-export function ChapterPage({ chapter, updateChapter, onScan, onDelete, onBack }: ChapterPageProps) {
+export function ChapterPage() {
+  const data = useLoaderData() as { book: Book };
+  const { chapterId } = useParams() as { chapterId: string };
+  const navigate = useNavigate();
   const editorRef = useRef<Editor>(null);
-  const [editTitle, setEditTitle] = useState(false);
+  const initialContent = useMemo(() => getChapterContent(chapterId), [chapterId]);
+
+  const [dirty, setDirty] = useState(false);
+  const [book, setBook] = useState(data.book);
+  const chapter = book.chapters.find((x) => x.id === chapterId)!;
+
+  const updateChapterName = (title: string) => {
+    const updatedChapters = book.chapters.map((ch) =>
+      ch.id === chapterId ? { ...ch, title } : ch
+    );
+    setBook({ ...book, chapters: updatedChapters });
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => saveBook(book), defaultSaveDebounce);
+    return () => clearTimeout(timer);
+  }, [book]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveChapterContent(chapterId, editorRef.current!.getHTML());
+      setDirty(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [chapterId, dirty]);
 
   return (
-    <Grid2 container spacing={2} direction="column" width={800}>
-      <Card>
-        <Grid2 container p={2} justifyContent="space-between">
-          <Box display="flex">
-            <IconButton sx={{ mr: 2 }} onClick={onBack}>
-              <ArrowBackIcon />
-            </IconButton>
+    <PageContainer>
+      <Grid2 container spacing={2} direction="column">
+        <Card>
+          <Grid2 container p={2}>
+            <Box display="flex" alignItems="center" flex={1}>
+              <IconButton onClick={() => {
+                saveBook(book);
+                saveChapterContent(chapterId, editorRef.current!.getHTML());
+                navigate(`/book/${book.id}`)
+              }}>
+                <ArrowBackIcon />
+              </IconButton>
 
-            {!editTitle && (
-              <Typography variant="h4">
-                {chapter.title}
-              </Typography>
-            )}
-
-            {editTitle && (
               <TextField
-                sx={{ width: "400px" }}
+                sx={{ flex: 1, maxWidth: "500px", mx: 2 }}
                 label="Title"
                 value={chapter.title}
-                onChange={e => updateChapter({ ...chapter, title: e.target.value })}
+                onChange={e => updateChapterName(e.target.value)}
               />
-            )}
-          </Box>
+            </Box>
 
-          <Grid2 container spacing={2}>
-            <IconButton onClick={() => updateChapter({ ...chapter, content: editorRef.current!.getHTML() })}>
-              <SaveIcon />
-            </IconButton>
-            <IconButton onClick={() => setEditTitle(editTitle => !editTitle)}>
-              <EditIcon />
-            </IconButton>
-            <IconButton onClick={onDelete}>
-              <DeleteIcon />
-            </IconButton>
+            <Grid2 container alignItems="center">
+              <IconButton
+                color="error"
+                onClick={() => {
+                  deleteChapterContent(chapter.id);
+                  const updatedChapters = book.chapters.filter((x) => x.id !== chapterId);
+                  saveBook({ ...book, chapters: updatedChapters });
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid2>
           </Grid2>
-        </Grid2>
-      </Card>
+        </Card>
 
-      <Card>
-        <Box p={2}>
-          <ChapterEditor editorRef={editorRef} chapter={chapter} onScannerClick={onScan} />
-        </Box>
-      </Card>
-    </Grid2>
+        <Card>
+          <Box p={2}>
+            <ContentEditor
+              editorRef={editorRef}
+              initialContent={initialContent}
+              onUpdate={() => setDirty(true)}
+            >
+              <Button
+                onClick={() => {
+                  const lastScan = getLastScan();
+                  if (!lastScan) return;
+                  editorRef.current!.commands.insertContent(lastScan);
+                }}
+              >
+                Paste Last Scan
+              </Button>
+
+              <Button onClick={() => {
+                saveBook(book);
+                saveChapterContent(chapterId, editorRef.current!.getHTML());
+                navigate("/scanner");
+              }}>
+                Scanner
+              </Button>
+            </ContentEditor>
+          </Box>
+        </Card>
+      </Grid2>
+    </PageContainer>
   );
 }

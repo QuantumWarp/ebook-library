@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { Book } from "../models/book";
+import { Book } from "./book";
 
 // See https://www.w3.org/TR/epub-33/ for more information
 export const exportEpub = (ebook: Book) => {
