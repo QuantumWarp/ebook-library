@@ -8,7 +8,7 @@ import {
 import { deleteBook, saveBook } from "../storage/book.storage";
 import { useEffect, useState } from "react";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import { exportEpub } from "../helpers/file-saver";
+import { serialize } from "../helpers/epub";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { defaultSaveDebounce } from "../helpers/constants";
 import { PageContainer } from "../common/PageContainer";
@@ -42,7 +42,16 @@ export function BookPage() {
 
             <Grid2 container spacing={2}>
               <Tooltip title="Download ePub">
-                <IconButton onClick={() => exportEpub(book)}>
+                <IconButton onClick={() => {
+                  const zip = serialize(book);
+                  zip.generateAsync({ type: "blob" })
+                    .then(function (blob) {
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = book.title + ".epub";
+                        link.click();
+                    });
+                }}>
                   <DownloadIcon />
                 </IconButton>
               </Tooltip>
