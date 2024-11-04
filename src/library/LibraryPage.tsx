@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../common/PageContainer";
 import { deserialize } from "../helpers/epub";
 import JSZip from "jszip";
+import { personalRights } from "../helpers/epub-serializer/oebps";
 
 export function LibraryPage() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export function LibraryPage() {
   const createNewBook = () => {
     const newBook = {
       id: uuidv4(),
+      rights: personalRights,
       image: "",
       title: "",
       description: "",

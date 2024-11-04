@@ -2,6 +2,8 @@ import { Book } from "../book";
 
 const serializer = new XMLSerializer();
 
+export const personalRights = "Personal";
+
 export const serializeOepbs = (book: Book): string => {
   const xml = document.implementation.createDocument("http://www.idpf.org/2007/opf", "package", null);
   const packageEl = xml.documentElement;
@@ -31,6 +33,10 @@ const serializeMetadata = (xml: XMLDocument, book: Book): HTMLElement => {
   const identifier = xml.createElementNS("dc", "identifier");
   identifier.textContent = book.id;
   metadata.appendChild(identifier);
+
+  const rights = xml.createElementNS("dc", "rights");
+  rights.textContent = personalRights;
+  metadata.appendChild(rights);
 
   const title = xml.createElementNS("dc", "title");
   title.textContent = book.title;

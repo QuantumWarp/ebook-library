@@ -4,6 +4,7 @@ import { RecognizeResult } from "tesseract.js";
 import { useEffect, useRef } from "react";
 import { saveLastScan } from "../storage/scan.storage";
 import { ContentEditor } from "../common/ContentEditor";
+import { parseTesseractResult } from "../helpers/ocr";
 
 type ScanSanitizerProps = {
   rawScan: RecognizeResult;
@@ -14,21 +15,8 @@ export function ScanSanitizer({ rawScan, onComplete }: ScanSanitizerProps) {
   const editorRef = useRef<Editor>(null);
 
   useEffect(() => {
-    let paragraph = '<p>';
-    let lineStart = 0;
-    for (const line of rawScan.data.lines) {
-      if (line.baseline.x0 > lineStart + 50 || line === line.paragraph.lines[0]) {
-        if (paragraph !== '') paragraph += '</p>';
-        paragraph += '<p>';
-      }
-      lineStart = line.baseline.x0;
-      for (const word of line.words) {
-        paragraph += word.text + ' ';
-      }
-    }
-    paragraph += '</p>';
-    editorRef.current!.commands.setContent(paragraph);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const html = parseTesseractResult(rawScan);
+    editorRef.current!.commands.setContent(html);
   }, [rawScan]);
 
   return (

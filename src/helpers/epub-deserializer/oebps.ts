@@ -8,6 +8,7 @@ export const deserializeOepbs = (xmlString: string): { book: Book, filenames: st
 
   const book: Book = {
     id: uuidv4(),
+    rights: xml.querySelector("rights")?.textContent || "",
     title: xml.querySelector("title")?.textContent || "",
     author: xml.querySelector("creator")?.textContent || "",
     description: xml.querySelector("description")?.textContent || "",

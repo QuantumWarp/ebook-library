@@ -13,6 +13,7 @@ import { serialize } from "../helpers/epub";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { defaultSaveDebounce } from "../helpers/constants";
 import { PageContainer } from "../common/PageContainer";
+import { personalRights } from "../helpers/epub-serializer/oebps";
 
 export function BookPage() {
   const data = useLoaderData() as { book: Book };
@@ -42,19 +43,24 @@ export function BookPage() {
             </Box>
 
             <Grid2 container spacing={2}>
-              <Tooltip title="Download ePub">
-                <IconButton onClick={async () => {
-                  const zip = await serialize(book);
-                  await zip.generateAsync({ type: "blob" })
-                    .then(function (blob) {
-                        const link = document.createElement("a");
-                        link.href = URL.createObjectURL(blob);
-                        link.download = book.title + ".epub";
-                        link.click();
-                    });
-                }}>
-                  <DownloadIcon />
-                </IconButton>
+              <Tooltip title={book.rights === personalRights ? "Download ePub" : "Only eBooks originally created in the app are allowed to be downloaded. Please use the original eBook source."}>
+                <Box display="flex" alignItems="center">
+                  <IconButton
+                    disabled={book.rights !== personalRights}
+                    onClick={async () => {
+                      const zip = await serialize(book);
+                      await zip.generateAsync({ type: "blob" })
+                        .then(function (blob) {
+                            const link = document.createElement("a");
+                            link.href = URL.createObjectURL(blob);
+                            link.download = book.title + ".epub";
+                            link.click();
+                        });
+                    }}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </Box>
               </Tooltip>
 
               <Tooltip title="Delete">

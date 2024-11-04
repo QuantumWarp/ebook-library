@@ -5,6 +5,6 @@ export const deserializeChapter = (xmlString: string, index: number): { content:
 
   return {
     content: xml.querySelector("body")?.innerHTML || "",
-    title: xml.querySelector("head > title")?.textContent || `Chapter ${index}`,
+    title: xml.querySelector("head meta[name=chapter-title]")?.textContent || `Chapter ${index}`,
   };
 }
