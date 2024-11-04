@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { Box, Button, Card, Grid2, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Book } from "../helpers/book";
 import {
@@ -42,9 +43,9 @@ export function BookPage() {
 
             <Grid2 container spacing={2}>
               <Tooltip title="Download ePub">
-                <IconButton onClick={() => {
-                  const zip = serialize(book);
-                  zip.generateAsync({ type: "blob" })
+                <IconButton onClick={async () => {
+                  const zip = await serialize(book);
+                  await zip.generateAsync({ type: "blob" })
                     .then(function (blob) {
                         const link = document.createElement("a");
                         link.href = URL.createObjectURL(blob);
@@ -163,7 +164,7 @@ export function BookPage() {
                   ...book.chapters,
                   {
                     title: `Chapter ${book.chapters.length + 1}`,
-                    id: Date.now().toString()
+                    id: uuidv4()
                   }
                 ]
               })}

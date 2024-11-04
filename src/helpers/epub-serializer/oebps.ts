@@ -28,6 +28,10 @@ const serializeMetadata = (xml: XMLDocument, book: Book): HTMLElement => {
   metadata.setAttributeNS("xmlns", "dc", "http://purl.org/dc/elements/1.1/");
   metadata.setAttributeNS("xmlns", "opf", "http://www.idpf.org/2007/opf");
 
+  const identifier = xml.createElementNS("dc", "identifier");
+  identifier.textContent = book.id;
+  metadata.appendChild(identifier);
+
   const title = xml.createElementNS("dc", "title");
   title.textContent = book.title;
   metadata.appendChild(title);
@@ -40,9 +44,9 @@ const serializeMetadata = (xml: XMLDocument, book: Book): HTMLElement => {
   language.textContent = "en";
   metadata.appendChild(language);
   
-  const identifier = xml.createElementNS("dc", "identifier");
-  identifier.textContent = book.id;
-  metadata.appendChild(identifier);
+  const description = xml.createElementNS("dc", "description");
+  description.textContent = book.description;
+  metadata.appendChild(description);
 
   return metadata;
 }
@@ -60,10 +64,17 @@ const serializeManifest = (xml: XMLDocument, book: Book): HTMLElement => {
   for (const chapter of book.chapters) {
     const item = xml.createElement("item");
     item.id = chapter.id;
-    item.setAttribute("href", chapter.id + ".html");
+    item.setAttribute("href", chapter.id + ".xhtml");
     item.setAttribute("media-type", "application/xhtml+xml");
     manifest.appendChild(item);
   }
+
+  const image = xml.createElement("item");
+  image.id = "cover";
+  image.setAttribute("href", "./images/cover.png");
+  image.setAttribute("properties", "cover-image");
+  image.setAttribute("media-type", "image/png");
+  manifest.appendChild(image);
 
   return manifest;
 }
@@ -74,6 +85,7 @@ const serializeSpine = (xml: XMLDocument, book: Book): HTMLElement => {
   for (const chapter of book.chapters) {
     const item = xml.createElement("itemref");
     item.setAttribute("idref", chapter.id);
+    spine.appendChild(item);
   }
 
   return spine;

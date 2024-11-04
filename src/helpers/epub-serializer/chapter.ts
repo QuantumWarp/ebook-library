@@ -19,11 +19,8 @@ export const serializeChapter = (chapter: Book["chapters"][0], content: string):
   const body = xml.createElement("body");
   html.appendChild(body);
 
-  const header = xml.createElement("h1");
-  header.textContent = chapter.title;
-  body.appendChild(header);
-
   body.innerHTML += content;
 
+  console.log(serializer.serializeToString(xml))
   return serializer.serializeToString(xml);
 }

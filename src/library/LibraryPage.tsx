@@ -1,9 +1,12 @@
+import { v4 as uuidv4 } from "uuid";
 import { Button, Grid2, Typography } from "@mui/material";
 import { BookTile } from "./BookTile";
 import { getBooks, saveBook } from "../storage/book.storage";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../common/PageContainer";
+import { deserialize } from "../helpers/epub";
+import JSZip from "jszip";
 
 export function LibraryPage() {
   const navigate = useNavigate();
@@ -11,7 +14,7 @@ export function LibraryPage() {
 
   const createNewBook = () => {
     const newBook = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       image: "",
       title: "",
       description: "",
@@ -20,7 +23,16 @@ export function LibraryPage() {
     };
     saveBook(newBook);
     navigate(`/book/${newBook.id}`);
+  };
+
+  const importBook = async (file: File) => {
+    const zipData = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(zipData);
+    const newBook = await deserialize(zip);
+    saveBook(newBook);
+    navigate(`/book/${newBook.id}`);
   }
+
 
   return (
     <PageContainer>
@@ -34,7 +46,19 @@ export function LibraryPage() {
 
         <Grid2 container spacing={2}>
           <Button variant="contained" sx={{ width: 100 }} onClick={createNewBook}>New</Button>
-          <Button variant="contained" sx={{ width: 100 }}>Import</Button>
+          <Button component="label" variant="contained" sx={{ width: 100 }}>
+            Import
+            <input
+              style={{ display: "none" }}
+              accept="epub/*"
+              type="file"
+              onChange={(event) => {
+                const selectedFile = event.target.files?.[0];
+                if (!selectedFile) return;
+                importBook(selectedFile);
+              }}
+            />
+          </Button>
         </Grid2>
 
         <Grid2 container spacing={3} display="flex" flexDirection="column">
