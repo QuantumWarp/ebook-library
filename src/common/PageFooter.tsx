@@ -1,9 +1,10 @@
 import { DarkMode, HelpOutline, LightMode } from "@mui/icons-material";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, useColorScheme } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Link, Tooltip, Typography, useColorScheme } from "@mui/material";
 import { useState } from "react";
 
 export function PageFooter() {
-  const { mode, setMode } = useColorScheme();
+  const { mode, setMode, systemMode } = useColorScheme();
+  const color = mode === "system" ? systemMode : mode;
   const year = new Date().getFullYear();
   const [openAbout, setOpenAbout] = useState(false);
 
@@ -16,10 +17,10 @@ export function PageFooter() {
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={mode !== 'dark' ? "Dark mode" : "Light mode"} placement="top">
-          <IconButton onClick={() => setMode(mode !== 'dark' ? 'dark' : 'light')}>
-            {mode === 'dark' && <LightMode />}
-            {mode !== 'dark' && <DarkMode />}
+        <Tooltip title={color !== 'dark' ? "Dark mode" : "Light mode"} placement="top">
+          <IconButton onClick={() => setMode(color !== 'dark' ? 'dark' : 'light')}>
+            {color === 'dark' && <LightMode />}
+            {color !== 'dark' && <DarkMode />}
           </IconButton>
         </Tooltip>
       </Box>
@@ -28,9 +29,15 @@ export function PageFooter() {
         <DialogTitle>About the eBook Library</DialogTitle>
 
         <DialogContent>
-          This app was initially made to scan a copy of books to be usedin eReaders,
-          but then turned into a more general eBook library & creator.
-          To see more technical information about this app check the README.md of the Github repo.
+          <Typography mb={2}>
+            This app was initially made to scan a copy of books to be used in eReaders,
+            as I had a number of old books whose pages were starting to fall out,
+            but then ended up being a more general eBook library & creator.
+          </Typography>
+          <Typography>
+            To see more technical information about this app check the README.md of
+            the <Link href="https://github.com/QuantumWarp/ebook-library">Github repo</Link>.
+          </Typography>
         </DialogContent>
 
         <DialogActions>

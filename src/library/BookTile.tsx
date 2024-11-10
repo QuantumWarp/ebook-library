@@ -18,7 +18,7 @@ export function BookTile({ book, onSelect }: BookTileProps) {
         />
         <CardContent sx={{ flex: "1", height: "100%", display: "flex", flexDirection: "column" }}>
           <Typography variant="h5">
-            {book.title}
+            {book.title || "Untitled"}
           </Typography>
           <Typography gutterBottom variant="h6">
             {book.author}

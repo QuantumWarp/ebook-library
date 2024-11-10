@@ -1,11 +1,11 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createHashRouter } from "react-router-dom";
 import { LibraryPage } from "./library/LibraryPage";
 import { BookPage } from "./book/BookPage";
 import { ChapterPage } from "./book/ChapterPage";
 import { ScannerPage } from "./scanner/ScannerPage";
 import { getBook } from "./storage/book.storage";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     element: <LibraryPage />,

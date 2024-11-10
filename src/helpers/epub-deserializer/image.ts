@@ -10,7 +10,6 @@ export const deserializeImage = async (zip: JSZip, xmlString: string): Promise<s
   url = url.includes("/") ? url : `OEBPS/${url}`;
 
   if (!url) return Promise.resolve("");
-  console.log(url)
   const imageBlob = await zip.file(url)!.async("blob");
   
   return new Promise((resolve) => {

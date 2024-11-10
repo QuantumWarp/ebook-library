@@ -27,7 +27,6 @@ const deserializeFilenames = (xml: XMLDocument): string[] => {
     id: x.id,
     filename: x.getAttribute("href")
   })).filter((x) => x.filename && x.id !== "nav");
-  console.log(manifestItems)
 
   const elements = xml.querySelectorAll("spine itemref");
   const itemIds = Array.from(elements).map((x) => x.getAttribute("idref"));

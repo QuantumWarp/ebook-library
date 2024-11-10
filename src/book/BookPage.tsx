@@ -46,7 +46,7 @@ export function BookPage() {
               <Tooltip title={book.rights === personalRights ? "Download ePub" : "Only eBooks originally created in the app are allowed to be downloaded. Please use the original eBook source."}>
                 <Box display="flex" alignItems="center">
                   <IconButton
-                    // disabled={book.rights !== personalRights}
+                    disabled={book.rights !== personalRights}
                     onClick={async () => {
                       const zip = await serialize(book);
                       await zip.generateAsync({ type: "blob" })
