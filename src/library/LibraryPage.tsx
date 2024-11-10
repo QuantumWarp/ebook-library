@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Button, Grid2, Typography } from "@mui/material";
 import { BookTile } from "./BookTile";
 import { getBooks, saveBook } from "../storage/book.storage";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../common/PageContainer";
 import { deserialize } from "../helpers/epub";
@@ -11,7 +11,7 @@ import { personalRights } from "../helpers/epub-serializer/oebps";
 
 export function LibraryPage() {
   const navigate = useNavigate();
-  const books = useMemo(() => getBooks(), []);
+  const [books, setBooks] = useState(() => getBooks())
 
   const createNewBook = () => {
     const newBook = {
@@ -27,13 +27,35 @@ export function LibraryPage() {
     navigate(`/book/${newBook.id}`);
   };
 
-  const importBook = async (file: File) => {
-    const zipData = await file.arrayBuffer();
-    const zip = await JSZip.loadAsync(zipData);
+  const importBook = async (arrayBuffer: ArrayBuffer) => {
+    const zip = await JSZip.loadAsync(arrayBuffer);
     const newBook = await deserialize(zip);
     saveBook(newBook);
     navigate(`/book/${newBook.id}`);
   }
+  
+  const importBookFile = async (file: File) => {
+    const zipData = await file.arrayBuffer();
+    importBook(zipData);
+  }
+
+
+  useEffect(() => {
+    if (books.length !== 0) return;
+    if (localStorage.getItem("loaded")) return;
+  
+    const importDefault = async () => {
+      localStorage.setItem("loaded", "true");
+      const response = await fetch("dracula.epub");
+      const arrayBuffer = await response.arrayBuffer();
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      const newBook = await deserialize(zip);
+      saveBook(newBook);
+      setBooks([newBook]);
+    }
+
+    importDefault();
+  }, [books])
 
 
   return (
@@ -57,7 +79,7 @@ export function LibraryPage() {
               onChange={(event) => {
                 const selectedFile = event.target.files?.[0];
                 if (!selectedFile) return;
-                importBook(selectedFile);
+                importBookFile(selectedFile);
               }}
             />
           </Button>

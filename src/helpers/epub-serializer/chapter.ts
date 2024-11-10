@@ -20,8 +20,7 @@ export const serializeChapter = (chapter: Book["chapters"][0], content: string):
   const body = xml.createElement("body");
   html.appendChild(body);
 
-  body.innerHTML += content;
+  body.setHTMLUnsafe(content);
 
-  console.log(serializer.serializeToString(xml))
   return serializer.serializeToString(xml);
 }

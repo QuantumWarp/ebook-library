@@ -28,6 +28,8 @@ export function PageFooter() {
         <DialogTitle>About the eBook Library</DialogTitle>
 
         <DialogContent>
+          This app was initially made to scan a copy of books to be usedin eReaders,
+          but then turned into a more general eBook library & creator.
           To see more technical information about this app check the README.md of the Github repo.
         </DialogContent>
 

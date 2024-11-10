@@ -13,6 +13,7 @@ import { defaultSaveDebounce } from "../helpers/constants";
 import { PageContainer } from "../common/PageContainer";
 import { ContentEditor } from "../common/ContentEditor";
 import { getLastScan } from "../storage/scan.storage";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 
 export function ChapterPage() {
   const data = useLoaderData() as { book: Book };
@@ -22,6 +23,7 @@ export function ChapterPage() {
   const initialContent = useMemo(() => getChapterContent(chapterId), [chapterId]);
 
   const [dirty, setDirty] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const [book, setBook] = useState(data.book);
   const chapter = book.chapters.find((x) => x.id === chapterId)!;
 
@@ -70,14 +72,25 @@ export function ChapterPage() {
             <Grid2 container alignItems="center">
               <IconButton
                 color="error"
-                onClick={() => {
-                  deleteChapterContent(chapter.id);
-                  const updatedChapters = book.chapters.filter((x) => x.id !== chapterId);
-                  saveBook({ ...book, chapters: updatedChapters });
-                }}
+                onClick={() => setDeleteDialog(true)}
               >
                 <DeleteIcon />
               </IconButton>
+
+              <ConfirmationDialog
+                open={deleteDialog}
+                title="Delete Chapter"
+                action="Delete"
+                onClose={() => setDeleteDialog(false)}
+                onConfirm={() => {
+                  deleteChapterContent(chapter.id);
+                  const updatedChapters = book.chapters.filter((x) => x.id !== chapterId);
+                  saveBook({ ...book, chapters: updatedChapters });
+                  navigate("/book/" + book.id);
+                }}
+              >
+                Are you sure you want to delete this Chapter?
+              </ConfirmationDialog>
             </Grid2>
           </Grid2>
         </Card>
