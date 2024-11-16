@@ -14,6 +14,7 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import { defaultSaveDebounce } from "../helpers/constants";
 import { PageContainer } from "../common/PageContainer";
 import { personalRights } from "../helpers/epub-serializer/oebps";
+import { readAndCompressImage } from "../helpers/image";
 
 export function BookPage() {
   const data = useLoaderData() as { book: Book };
@@ -103,15 +104,15 @@ export function BookPage() {
                   style={{ display: "none" }}
                   accept="image/*"
                   type="file"
-                  onChange={(event) => {
+                  onChange={async (event) => {
                     const selectedFile = event.target.files?.[0];
                     if (!selectedFile) return;
-                    const blobFile = new Blob([selectedFile], { type: selectedFile.type });
+                    const compressedBlob = await readAndCompressImage(selectedFile);
                     const reader = new FileReader();
-                    reader.readAsDataURL(blobFile);
+                    reader.readAsDataURL(compressedBlob);
                     reader.onload = () => {
                       setBook({ ...book, image: reader.result as string });
-                    }
+                    };
                   }}
                 />
               </Button>
