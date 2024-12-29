@@ -1,12 +1,14 @@
+const chapterPrefix = "ebook-library-chapter-";
+
 export const getChapterContent = (chapterId: string): string => {
-  const content = localStorage.getItem(`chapter-${chapterId}`);
+  const content = localStorage.getItem(`${chapterPrefix}${chapterId}`);
   return content || "";
 }
 
 export const saveChapterContent = (chapterId: string, content: string): void => {
-  localStorage.setItem(`chapter-${chapterId}`, content);
+  localStorage.setItem(`${chapterPrefix}${chapterId}`, content);
 }
 
 export const deleteChapterContent = (chapterId: string): void => {
-  localStorage.removeItem(`chapter-${chapterId}`);
+  localStorage.removeItem(`${chapterPrefix}${chapterId}`);
 }

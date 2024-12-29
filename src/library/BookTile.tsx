@@ -8,12 +8,11 @@ type BookTileProps = {
 
 export function BookTile({ book, onSelect }: BookTileProps) {
   return (
-    <Card sx={{ display: "flex", height: 200, maxWidth: 700 }} onClick={onSelect}>
+    <Card sx={{ display: "flex", height: 200, width: 700, maxWidth: 700 }} onClick={onSelect}>
       <CardActionArea sx={{ display: "flex" }}>
         <CardMedia
           component="img"
-          width="300px"
-          sx={{ maxWidth: 150 }}
+          sx={{ width: 150 }}
           image={book.image}
         />
         <CardContent sx={{ flex: "1", height: "100%", display: "flex", flexDirection: "column" }}>

@@ -1,7 +1,9 @@
+const lastScanKey = "ebook-library-scan";
+
 export const getLastScan = () => {
-  return localStorage.getItem("last-scan");
+  return localStorage.getItem(lastScanKey);
 }
 
 export const saveLastScan = (content: string) => {
-  localStorage.setItem("last-scan", content);
+  localStorage.setItem(lastScanKey, content);
 }

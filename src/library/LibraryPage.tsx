@@ -39,13 +39,12 @@ export function LibraryPage() {
     importBook(zipData);
   }
 
-
   useEffect(() => {
     if (books.length !== 0) return;
-    if (localStorage.getItem("loaded")) return;
+    if (localStorage.getItem("ebook-library-loaded")) return;
   
     const importDefault = async () => {
-      localStorage.setItem("loaded", "true");
+      localStorage.setItem("ebook-library-loaded", "true");
       const response = await fetch("dracula.epub");
       const arrayBuffer = await response.arrayBuffer();
       const zip = await JSZip.loadAsync(arrayBuffer);
